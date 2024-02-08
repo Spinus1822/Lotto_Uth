@@ -1,5 +1,6 @@
 import random
 
+
 class Gra:
     def __init__(self, nick):
         self.nick = nick
@@ -75,6 +76,6 @@ def main():
     except Exception as e:
         print(f"Wystąpił błąd: {e}")
 
+
 if __name__ == "__main__":
     main()
-
