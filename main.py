@@ -11,43 +11,57 @@ class Gra:
         self.wylosowane_liczby = []
 
     def pobierz_dane(self):
-        self.ilosc_liczb = int(input("Ile liczb chcesz typować?: "))
-        self.zakres = int(input("Podaj maksymalny zakres losowania: "))
-        self.ilosc_losowan = int(input("Ile razy chcesz losować?: "))
-        if self.ilosc_liczb <= 0 or self.zakres <= 0 or self.ilosc_losowan <= 0:
-            raise ValueError("Wszystkie wartości muszą być większe od 0.")
-        if self.ilosc_liczb > self.zakres:
-            raise ValueError("Ilość typowanych liczb nie może przekraczać maksymalnego zakresu.")
+        try:
+            self.ilosc_liczb = int(input("Ile liczb chcesz typować? "))
+            self.zakres = int(input("Podaj maksymalny zakres losowania: "))
+            self.ilosc_losowan = int(input("Ile razy mamy zalosować? "))
+            if self.ilosc_liczb <= 0 or self.zakres <= 0 or self.ilosc_losowan <= 0:
+                raise ValueError("Wszystkie wartości muszą być większe od 0.")
+            if self.ilosc_liczb > self.zakres:
+                raise ValueError("Ilość typowanych liczb nie może przekraczać maksymalnego zakresu.")
+        except ValueError as e:
+            print(f"Błąd wartości: {e}")
+            raise
 
     def generuj_liczby(self):
         for _ in range(self.ilosc_losowan):
             self.wylosowane_liczby.append(random.sample(range(1, self.zakres + 1), self.ilosc_liczb))
 
     def zgadnij_liczby(self):
-        for i in range(self.ilosc_liczb):
-            liczba = int(input(f"Podaj liczbę {i+1}: "))
-            if liczba < 1 or liczba > self.zakres:
-                raise ValueError(f"Liczba musi być w zakresie od 1 do {self.zakres}.")
-            self.liczby.append(liczba)
+        podane_liczby = set()
+        while len(podane_liczby) < self.ilosc_liczb:
+            try:
+                liczba = int(input(f"Podaj liczbę ({len(podane_liczby)+1} z {self.ilosc_liczb}): "))
+                if liczba < 1 or liczba > self.zakres:
+                    raise ValueError(f"Liczba poza zakresem 1-{self.zakres}.")
+                if liczba in podane_liczby:
+                    raise ValueError("Nie możesz podać dwa razy tej samej liczby :/.")
+                podane_liczby.add(liczba)
+            except ValueError as e:
+                print(f"Błąd: {e}")
+        self.liczby = list(podane_liczby)
 
     def sprawdz_wyniki(self):
-        print("\nWyniki losowań:")
         for i, losowanie in enumerate(self.wylosowane_liczby, start=1):
             trafione_w_losowaniu = set(losowanie) & set(self.liczby)
             self.trafione.append(trafione_w_losowaniu)
             print(f"Losowanie {i}: Wylosowane liczby: {sorted(losowanie)} - Trafione liczby: {sorted(trafione_w_losowaniu)}")
 
     def zapisz_wyniki(self):
-        with open(f"{self.nick}.txt", "w", encoding='utf-8') as plik:
-            plik.write(f"Nick: {self.nick}\n")
-            plik.write(f"Ilość liczb: {self.ilosc_liczb}, Zakres: {self.zakres}, Ilość losowań: {self.ilosc_losowan}\n")
-            plik.write("Typowane liczby: " + ", ".join(map(str, self.liczby)) + "\n")
-            for i, trafione in enumerate(self.trafione, start=1):
-                plik.write(f"Losowanie {i}: Trafione liczby: " + ", ".join(map(str, trafione)) + "\n")
+        try:
+            with open(f"{self.nick}.txt", "w", encoding='utf-8') as plik:
+                plik.write(f"Nick: {self.nick}\n")
+                plik.write(f"Ilość liczb: {self.ilosc_liczb}, Zakres: {self.zakres}, Ilość losowań: {self.ilosc_losowan}\n")
+                plik.write("Typowane liczby: " + ", ".join(map(str, self.liczby)) + "\n")
+                for i, trafione in enumerate(self.trafione, start=1):
+                    plik.write(f"Losowanie {i}: Trafione liczby: " + ", ".join(map(str, trafione)) + "\n")
+        except IOError as e:
+            print(f"Błąd zapisu do pliku: {e}")
+            raise
 
 
 def main():
-    print("Witaj w naszej grze! Powodzenia!")
+    print("Witamy w Lotto. Powodzenia!!")
     nick = input("Podaj swój nick: ")
     gra = Gra(nick)
     try:
@@ -56,10 +70,11 @@ def main():
         gra.zgadnij_liczby()
         gra.sprawdz_wyniki()
         gra.zapisz_wyniki()
-        print("\nGra zakończona. Wyniki zostały zapisane w pliku.")
-        print("\nPowodzenia w kolejnych rozgrywkach!!")
+        print("\nGra zakończona. Wyniki zostały zapisane do pliku.")
+        print("\nPowodzenia w przyszłych rozgrywkach!")
     except Exception as e:
         print(f"Wystąpił błąd: {e}")
 
 if __name__ == "__main__":
     main()
+
