@@ -1,1 +1,1 @@
-Gra w lotto na zaliczenie Uth
+Gra w lotto na zaliczenie przedmiotu
